@@ -1,5 +1,5 @@
 """
-The script automatically extracts data from all Gaussian 16 .log files (DipoleVisBL.py) in a folder,
+The script automatically extracts data from all Gaussian 16 .log files in a folder,
 reorient the molecules to project them onto the figure plane with the π-system
 aligned horizontally and dipole moments  (if present) pointing toward the top right.
 Bond lengths and dipole vectors are then printed onto the structures, and the
@@ -10,7 +10,11 @@ Place it within a folder containing the .log files and run from PowerShell (e.g.
 For help: 
  python DipoleVisBL.py --help 
  
- options:
+usage: DipoleVisBL.py [-h] [--bond-len] [--no-dipole] [--offset] [--oy OY] [--final] [--pi-sys] [--fs FS]
+
+Visualise dipole moments and bond lengths.
+
+options:
   -h, --help   show this help message and exit
   --bond-len   Show bond lengths. Default: no
   --no-dipole  Hide dipole moments. Default: no
@@ -19,10 +23,7 @@ For help:
   --final      Draw only the final dipole moment in the .log file. Default: no
   --pi-sys     Only bond lengths in the pi polycyclic system system will be shown. Default: no
   --fs FS      Font size (default: 10.0).
-  
-  python DipoleVisBL.py --bond-len --no-dipole --fs 7.5 --pi-sys            # show bond lengths within the pi system, font size 7.5 pt, hide dipole moments
-  python DipoleVisBL.py --bond-len --offset --oy 4.0 --pi-sys --fs 9.0      # show bond lengths within the pi system, show dipole moment with offset of 4.0 angstroms above the mol. center, font size 9.0 pt
-"""
+  """
 
 import os
 import re
@@ -290,11 +291,11 @@ for filename in os.listdir(input_folder):
         
             # Calculate mean plane and rotate molecule
             system_coords = np.concatenate([at_coords[ring] for ring in longest_fused_system])
-            #mean_centroid, mean_normal = calculate_mean_plane(system_coords)
             rotated_coords, rotated_dipoles = align_molecule_to_xy_and_x(system_coords,at_coords,dipole_moments) # rotate_to_xy_plane(coords, mean_normal)
-            # After rotating to the XY plane, align the principal axis to the X-axis:
+            # list of pi-system atoms:
             fused_atoms = set(np.concatenate(longest_fused_system))
-      
+            n_pi_sys = len(fused_atoms)
+            print(f"{n_pi_sys} atoms in pi system.")
         
         
 # project atom corrds onto 2D x,y plane
@@ -499,7 +500,7 @@ for filename in os.listdir(input_folder):
         
 # Save the figure
         plt.savefig(file_png, dpi=300, bbox_inches='tight', pad_inches=0)
-        print(f"Saved {file_png}")
+        print(f"Saved {file_png}\n")
         plt.close()
 
         
